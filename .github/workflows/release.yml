@@ -23,3 +23,5 @@ jobs:
         with:
           files: |
             build/irrigation.bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
