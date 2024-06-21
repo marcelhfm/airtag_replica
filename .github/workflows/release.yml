@@ -2,8 +2,8 @@ name: Release Firmware
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -18,9 +18,9 @@ jobs:
         with:
           target: esp32c3
 
-      - name: Upload firmware to release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, "refs/tags/")
         with:
-          files: build/irrigation.bin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            build/irrigation.bin
