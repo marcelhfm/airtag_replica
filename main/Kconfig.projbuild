@@ -1,21 +1,21 @@
-menu "WiFi Configuration"
-
-config WIFI_SSID
-  string "WiFi SSID"
-  default "${WIFI_SSID}"
-  help
-      Enter the SSID of the WiFI network.
-
-config WIFI_PASSWORD
-  string "WiFi Password"
-  default "${WIFI_PASSWORD}"
-  help 
-      Enter the password of the WiFi network.
+menu "Irrigation Configuration"
 
 config WIFI_MAX_RETRIES 
   int "WiFi Max Retries attempts"
   default 5
   help
       Enter the maximum number of retries to connect to WiFi
+
+config FIRMWARE_URL
+  string "Firmware url"
+  default "https://github.com/marcelhfm/irrigation/releases/latest/download/irrigation.bin"
+  help
+      Enter the firmware url where the binary is uploaded to
+
+config FIRMWARE_VERSION_URL
+  string "Firmware url"
+  default "https://api.github.com/repos/marcelhfm/irrigation/releases/latest"
+  help
+      Enter the firmware url where the binary is uploaded to
 
 endmenu
