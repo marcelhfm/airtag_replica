@@ -7,16 +7,12 @@
 #include "freertos/task.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "sdkconfig.h"
 #include <inttypes.h>
 #include <stdint.h>
-
-#define FIRMWARE_VERSION "v0.0.3"
 
 static const char *TAG = "MAIN";
 
 void app_main(void) {
-  ESP_LOGI(TAG, "Running firmware version %s", FIRMWARE_VERSION);
   // Initialize NVS
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
@@ -33,7 +29,7 @@ void app_main(void) {
 
   wifi_init_sta(ssid, password);
 
-  xTaskCreate(&ota_update_task, "ota_task", 8192, FIRMWARE_VERSION, 5, NULL);
+  xTaskCreate(&ota_update_task, "ota_task", 8192, NULL, 5, NULL);
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(1000));

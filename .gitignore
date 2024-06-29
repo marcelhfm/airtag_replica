@@ -1,6 +1,4 @@
 .cache
 build
 .DS_Store
-sdkconfig
-sdkconfig.old
 .env
