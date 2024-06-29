@@ -108,6 +108,34 @@ char *extract_tag_name(const char *json) {
   return tag_name;
 }
 
+char *extract_core_version(const char *version) {
+  char *core_version = (char *)malloc(strlen(version) + 1);
+  if (!core_version) {
+    return NULL;
+  }
+
+  strcpy(core_version, version);
+  char *hyphen = strchr(core_version, '-');
+  if (hyphen) {
+    *hyphen = '\0';
+  }
+  return core_version;
+}
+
+int compare_versions(const char *v1, const char *v2) {
+  int major1, minor1, patch1;
+  int major2, minor2, patch2;
+
+  sscanf(v1, "v%d.%d.%d", &major1, &minor1, &patch1);
+  sscanf(v2, "v%d.%d.%d", &major2, &minor2, &patch2);
+
+  if (major1 != major2)
+    return major1 - major2;
+  if (minor1 != minor2)
+    return minor1 - minor2;
+  return patch1 - patch2;
+}
+
 void perform_ota() {
   esp_http_client_config_t config = {.url = CONFIG_FIRMWARE_URL,
                                      .crt_bundle_attach = esp_crt_bundle_attach,
@@ -137,11 +165,9 @@ void ota_update_task(void *pvParameters) {
 
   const esp_partition_t *running = esp_ota_get_running_partition();
   esp_app_desc_t running_app_info;
-  if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK) {
-    ESP_LOGI(TAG, "Running firmware version: %s", running_app_info.version);
-  }
+  esp_ota_get_partition_description(running, &running_app_info);
 
-  const char *response = http_get(CONFIG_FIRMWARE_VERSION_URL);
+  char *response = http_get(CONFIG_FIRMWARE_VERSION_URL);
   if (!response) {
     ESP_LOGE(TAG, "Failed to fetch from latest release info");
     vTaskDelete(NULL);
@@ -149,13 +175,42 @@ void ota_update_task(void *pvParameters) {
   }
 
   char *tag_name = extract_tag_name(response);
+  free(response);
   if (!tag_name) {
     ESP_LOGE(TAG, "Failed to extract tag_name from response");
     vTaskDelete(NULL);
     return;
   }
 
-  ESP_LOGI(TAG, "Latest firmware version: %s", tag_name);
+  char *current_version = extract_core_version(running_app_info.version);
+  char *latest_version = extract_core_version(tag_name);
+
+  if (!current_version || !latest_version) {
+    ESP_LOGE(TAG, "Failed to extract core version");
+    free(tag_name);
+    free(current_version);
+    free(latest_version);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  if (compare_versions(current_version, latest_version) >= 0) {
+    ESP_LOGI(TAG,
+             "Not updating to new version. The new firmware is not newer. "
+             "Current: %s Latest: %s",
+             current_version, latest_version);
+    free(tag_name);
+    free(current_version);
+    free(latest_version);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  ESP_LOGI(TAG, "Updating to version %s", latest_version);
+  free(tag_name);
+  free(current_version);
+  free(latest_version);
+  perform_ota();
 
   while (1) {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
