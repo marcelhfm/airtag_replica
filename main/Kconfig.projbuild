@@ -18,4 +18,16 @@ config FIRMWARE_VERSION_URL
   help
       Enter the firmware url where the binary is uploaded to
 
+config HOME_SERVER_IP
+  string "Home server IP"
+  default "192.168.11.30"
+  help
+      Enter the ip address of the server running in the same network
+
+config HOME_SERVER_UDP_PORT
+  int "UDP Port"
+  default 12345
+  help
+      Enter the UDP port of the home server
+
 endmenu

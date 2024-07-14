@@ -161,7 +161,7 @@ void perform_ota() {
 }
 
 void ota_update_task(void *pvParameters) {
-  ESP_LOGI(TAG, "Starting OTA example task");
+  ESP_LOGI(TAG, "Starting OTA task");
 
   const esp_partition_t *running = esp_ota_get_running_partition();
   esp_app_desc_t running_app_info;
@@ -211,8 +211,5 @@ void ota_update_task(void *pvParameters) {
   free(current_version);
   free(latest_version);
   perform_ota();
-
-  while (1) {
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
+  vTaskDelete(NULL);
 }
