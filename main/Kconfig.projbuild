@@ -30,4 +30,10 @@ config HOME_SERVER_UDP_PORT
   help
       Enter the UDP port of the home server
 
+config HOME_SERVER_MQTT_URI
+  string "MQTT Broker URI"
+  default "mqtt://192.168.11.30:1883"
+  help
+      Enter the MQTT Broker URI
+
 endmenu

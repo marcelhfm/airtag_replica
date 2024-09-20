@@ -12,6 +12,8 @@
 
 static const char *TAG = "OTA";
 
+extern TaskHandle_t send_data_task_handle;
+
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
   switch (evt->event_id) {
   case HTTP_EVENT_ERROR:
@@ -170,6 +172,10 @@ void ota_update_task(void *pvParameters) {
   char *response = http_get(CONFIG_FIRMWARE_VERSION_URL);
   if (!response) {
     ESP_LOGE(TAG, "Failed to fetch from latest release info");
+
+    ESP_LOGI(TAG, "Notifiying read data task, we're ready to go to sleep.");
+    xTaskNotifyGive(send_data_task_handle);
+
     vTaskDelete(NULL);
     return;
   }
@@ -178,6 +184,10 @@ void ota_update_task(void *pvParameters) {
   free(response);
   if (!tag_name) {
     ESP_LOGE(TAG, "Failed to extract tag_name from response");
+
+    ESP_LOGI(TAG, "Notifiying read data task, we're ready to go to sleep.");
+    xTaskNotifyGive(send_data_task_handle);
+
     vTaskDelete(NULL);
     return;
   }
@@ -190,6 +200,10 @@ void ota_update_task(void *pvParameters) {
     free(tag_name);
     free(current_version);
     free(latest_version);
+
+    ESP_LOGI(TAG, "Notifiying read data task, we're ready to go to sleep.");
+    xTaskNotifyGive(send_data_task_handle);
+
     vTaskDelete(NULL);
     return;
   }
@@ -202,6 +216,10 @@ void ota_update_task(void *pvParameters) {
     free(tag_name);
     free(current_version);
     free(latest_version);
+
+    ESP_LOGI(TAG, "Notifiying read data task, we're ready to go to sleep.");
+    xTaskNotifyGive(send_data_task_handle);
+
     vTaskDelete(NULL);
     return;
   }
@@ -211,5 +229,7 @@ void ota_update_task(void *pvParameters) {
   free(current_version);
   free(latest_version);
   perform_ota();
+  ESP_LOGI(TAG, "Notifiying send data task, we're ready to go to sleep.");
+  xTaskNotifyGive(send_data_task_handle);
   vTaskDelete(NULL);
 }

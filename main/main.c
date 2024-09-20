@@ -61,7 +61,9 @@ void start_tasks() {
 }
 
 void register_rtc_timer_deep_sleep() {
-  const long long wakeup_time_sec = 60 * 60;
+  const long long wakeup_time_sec = 60 * 60; // 1 Hour
+  // const long long wakeup_time_sec = 20; // 20 Secs
+
   ESP_LOGI(TAG, "Enabling timer wakeup, %llds", wakeup_time_sec);
   ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(wakeup_time_sec * 1000000));
 }
@@ -87,6 +89,8 @@ void app_main(void) {
 
   udp_socket_init();
   esp_log_set_vprintf(custom_log_handler);
+
+  mqtt_start();
 
   measurements_queue = xQueueCreate(5, sizeof(float));
 
